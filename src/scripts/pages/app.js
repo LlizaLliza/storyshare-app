@@ -36,8 +36,20 @@ class App {
     const url = getActiveRoute();
     const page = routes[url];
 
-    this.#content.innerHTML = await page.render();
-    await page.afterRender();
+    if (!page) {
+      this.#content.innerHTML = '<p>Halaman tidak ditemukan</p>';
+      return;
+    }
+
+    if (document.startViewTransition) {
+      document.startViewTransition(async () => {
+        this.#content.innerHTML = await page.render();
+        await page.afterRender();
+      });
+    } else {
+      this.#content.innerHTML = await page.render();
+      await page.afterRender();
+    }
   }
 }
 
