@@ -180,5 +180,17 @@ export default class AddStoryPage {
         alert('Terjadi kesalahan saat menambahkan cerita');
       }
     });
+    
+    function stopCamera() {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+        console.log('Kamera dimatikan karena user pindah halaman.');
+      }
+    }
+
+    window.addEventListener('hashchange', () => {
+      stopCamera();
+    });
   }
 }
