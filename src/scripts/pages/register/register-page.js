@@ -1,6 +1,16 @@
 import Api from '../../data/api';
+import RegisterPresenter from './register-presenter.js';
 
 export default class RegisterPage {
+  #presenter;
+
+  constructor() {
+    this.#presenter = new RegisterPresenter({
+      view: this,
+      model: Api,
+    });
+  }
+
   async render() {
     return `
       <section class="container auth">
@@ -33,28 +43,25 @@ export default class RegisterPage {
 
   async afterRender() {
     const registerForm = document.getElementById('registerForm');
-    
+
     registerForm.addEventListener('submit', async (event) => {
       event.preventDefault();
-      
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      
-      try {
-        const response = await Api.register({ name, email, password });
-        
-        if (response.error) {
-          alert(response.message);
-          return;
-        }
-        
-        alert('Registrasi berhasil! Silakan login.');
-        window.location.hash = '#/login';
-      } catch (error) {
-        console.error(error);
-        alert('Terjadi kesalahan saat registrasi');
-      }
+
+      const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value,
+      };
+
+      await this.#presenter.handleRegister(formData);
     });
+  }
+
+  showError(message) {
+    alert(message);
+  }
+
+  showSuccess(message) {
+    alert(message);
   }
 }

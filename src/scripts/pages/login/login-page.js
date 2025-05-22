@@ -1,6 +1,9 @@
 import Api from '../../data/api';
+import LoginPresenter from './login-presenter.js';
 
 export default class LoginPage {
+  #presenter;
+
   async render() {
     return `
       <section class="container auth">
@@ -28,32 +31,27 @@ export default class LoginPage {
   }
 
   async afterRender() {
+    this.#presenter = new LoginPresenter({
+      model: Api,
+      view: this,
+    });
+
     const loginForm = document.getElementById('loginForm');
-    
-    loginForm.addEventListener('submit', async (event) => {
+    loginForm.addEventListener('submit', (event) => {
       event.preventDefault();
-      
+
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
-      
-      try {
-        const response = await Api.login({ email, password });
-        
-        if (response.error) {
-          alert(response.message);
-          return;
-        }
-        
-        const { userId, name, token } = response.loginResult;
-        localStorage.setItem('userId', userId);
-        localStorage.setItem('name', name);
-        localStorage.setItem('token', token);
-        
-        window.location.hash = '#/';
-      } catch (error) {
-        console.error(error);
-        alert('Terjadi kesalahan saat login');
-      }
+
+      this.#presenter.login({ email, password });
     });
+  }
+
+  showError(message) {
+    alert(message);
+  }
+
+  navigateToHome() {
+    window.location.hash = '#/';
   }
 }

@@ -1,7 +1,9 @@
+import HomePresenter from './home-presenter.js';
 import Api from '../../data/api';
-import { parseActivePathname } from '../../routes/url-parser';
 
 export default class HomePage {
+  #presenter;
+
   async render() {
     return `
       <section class="container stories">
@@ -20,54 +22,46 @@ export default class HomePage {
   }
 
   async afterRender() {
-    const storiesContainer = document.getElementById('stories-list');
-    
-    // cek login
-    const token = localStorage.getItem('token');
-    if (!token) {
-      window.location.hash = '#/login';
+    this.#presenter = new HomePresenter({
+      model: Api,
+      view: this,
+    });
+
+    await this.#presenter.loadStories();
+  }
+
+  showStories(stories) {
+    const container = document.getElementById('stories-list');
+    container.innerHTML = '';
+
+    if (stories.length === 0) {
+      container.innerHTML = '<p>Belum ada cerita yang dibagikan</p>';
       return;
     }
-    
-    try {
-      // get data stori
-      const response = await Api.getAllStories();
-      
-      if (response.error) {
-        storiesContainer.innerHTML = `<p>${response.message}</p>`;
-        return;
-      }
 
-      const stories = response.listStory;
-      
-      if (stories.length === 0) {
-        storiesContainer.innerHTML = '<p>Belum ada cerita yang dibagikan</p>';
-        return;
-      }
-      
-      storiesContainer.innerHTML = '';
-      stories.forEach((story) => {
-        storiesContainer.innerHTML += `
-          <article class="story-item">
-            <div class="story-item__thumbnail">
-              <img src="${story.photoUrl}" alt="${story.name}'s story" class="story-item__image">
-            </div>
-            <div class="story-item__content">
-              <h2 class="story-item__title">${story.name}</h2>
-              <p class="story-item__date">${new Date(story.createdAt).toLocaleDateString('id-ID', { 
-                day: 'numeric', 
-                month: 'long', 
-                year: 'numeric' 
-              })}</p>
-              <p class="story-item__description">${story.description.substring(0, 100)}${story.description.length > 100 ? '...' : ''}</p>
-              <a href="#/detail/${story.id}" class="story-item__button">Baca Selengkapnya</a>
-            </div>
-          </article>
-        `;
-      });
-    } catch (error) {
-      console.error(error);
-      storiesContainer.innerHTML = '<p>Gagal memuat cerita</p>';
-    }
+    stories.forEach((story) => {
+      container.innerHTML += `
+        <article class="story-item">
+          <div class="story-item__thumbnail">
+            <img src="${story.photoUrl}" alt="${story.name}'s story" class="story-item__image">
+          </div>
+          <div class="story-item__content">
+            <h2 class="story-item__title">${story.name}</h2>
+            <p class="story-item__date">${new Date(story.createdAt).toLocaleDateString('id-ID', { 
+              day: 'numeric', 
+              month: 'long', 
+              year: 'numeric' 
+            })}</p>
+            <p class="story-item__description">${story.description.substring(0, 100)}${story.description.length > 100 ? '...' : ''}</p>
+            <a href="#/detail/${story.id}" class="story-item__button">Baca Selengkapnya</a>
+          </div>
+        </article>
+      `;
+    });
+  }
+
+  showError(message) {
+    const container = document.getElementById('stories-list');
+    container.innerHTML = `<p>${message}</p>`;
   }
 }
