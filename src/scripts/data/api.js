@@ -36,7 +36,16 @@ class Api {
       }),
     });
     
-    return await response.json();
+    const result = await response.json();
+
+    if (!result.error && result.loginResult) {
+      const { userId, name, token } = result.loginResult;
+      localStorage.setItem('userId', userId);
+      localStorage.setItem('name', name);
+      localStorage.setItem('token', token);
+    }
+
+    return result;
   }
 
   static async getAllStories() {

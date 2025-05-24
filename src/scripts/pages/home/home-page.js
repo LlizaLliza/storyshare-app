@@ -30,6 +30,26 @@ export default class HomePage {
     await this.#presenter.loadStories();
   }
 
+  redirectToLogin() {
+    window.location.hash = '#/login';
+  }
+
+  logError(error) {
+    console.error(error);
+  }
+
+  formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString('id-ID', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    });
+  }
+
+  truncateText(text, maxLength) {
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+  }
+
   showStories(stories) {
     const container = document.getElementById('stories-list');
     container.innerHTML = '';
@@ -40,6 +60,9 @@ export default class HomePage {
     }
 
     stories.forEach((story) => {
+      const formattedDate = this.formatDate(story.createdAt);
+      const truncatedDescription = this.truncateText(story.description, 100);
+      
       container.innerHTML += `
         <article class="story-item">
           <div class="story-item__thumbnail">
@@ -47,12 +70,8 @@ export default class HomePage {
           </div>
           <div class="story-item__content">
             <h2 class="story-item__title">${story.name}</h2>
-            <p class="story-item__date">${new Date(story.createdAt).toLocaleDateString('id-ID', { 
-              day: 'numeric', 
-              month: 'long', 
-              year: 'numeric' 
-            })}</p>
-            <p class="story-item__description">${story.description.substring(0, 100)}${story.description.length > 100 ? '...' : ''}</p>
+            <p class="story-item__date">${formattedDate}</p>
+            <p class="story-item__description">${truncatedDescription}</p>
             <a href="#/detail/${story.id}" class="story-item__button">Baca Selengkapnya</a>
           </div>
         </article>

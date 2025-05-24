@@ -36,22 +36,38 @@ export default class LoginPage {
       view: this,
     });
 
-    const loginForm = document.getElementById('loginForm');
-    loginForm.addEventListener('submit', (event) => {
-      event.preventDefault();
-
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-
-      this.#presenter.login({ email, password });
-    });
-  }
-
-  showError(message) {
-    alert(message);
+    this.setupFormEvents();
   }
 
   navigateToHome() {
     window.location.hash = '#/';
+  }
+
+  logError(error) {
+    console.error(error);
+  }
+
+  showAlert(message) {
+    alert(message);
+  }
+
+  getFormData() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    return { email, password };
+  }
+
+  setupFormEvents() {
+    const loginForm = document.getElementById('loginForm');
+    loginForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      
+      const formData = this.getFormData();
+      this.#presenter.login(formData);
+    });
+  }
+
+  showError(message) {
+    this.showAlert(message);
   }
 }

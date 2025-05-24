@@ -42,26 +42,45 @@ export default class RegisterPage {
   }
 
   async afterRender() {
+    this.setupFormEvents();
+  }
+
+  navigateToLogin() {
+    window.location.hash = '#/login';
+  }
+
+  logError(error) {
+    console.error(error);
+  }
+
+  showAlert(message) {
+    alert(message);
+  }
+
+  getFormData() {
+    return {
+      name: document.getElementById('name').value,
+      email: document.getElementById('email').value,
+      password: document.getElementById('password').value,
+    };
+  }
+
+  setupFormEvents() {
     const registerForm = document.getElementById('registerForm');
 
     registerForm.addEventListener('submit', async (event) => {
       event.preventDefault();
 
-      const formData = {
-        name: document.getElementById('name').value,
-        email: document.getElementById('email').value,
-        password: document.getElementById('password').value,
-      };
-
+      const formData = this.getFormData();
       await this.#presenter.handleRegister(formData);
     });
   }
 
   showError(message) {
-    alert(message);
+    this.showAlert(message);
   }
 
   showSuccess(message) {
-    alert(message);
+    this.showAlert(message);
   }
 }

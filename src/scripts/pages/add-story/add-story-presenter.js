@@ -1,174 +1,120 @@
 export default class AddStoryPresenter {
-    constructor(Api, CONFIG) {
-      this.Api = Api;
-      this.CONFIG = CONFIG;
-      this.stream = null;
-    }
-  
-    async init() {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        window.location.hash = '#/login';
-        return;
+  constructor({ model, config, view }) {
+    this.model = model;
+    this.config = config;
+    this.view = view;
+    this.stream = null;
+  }
+
+  async init() {
+    await this.view.loadLeaflet();
+
+    this.setupMap();
+    this.setupCamera();
+    this.setupForm();
+    this.view.setupStopCameraOnHashChange(() => this.stopCamera());
+  }
+
+  setupMap() {
+    const { DEFAULT_LATITUDE, DEFAULT_LONGITUDE, DEFAULT_MAP_ZOOM } = this.config;
+    this.map = this.view.createMap('locationMap', DEFAULT_LATITUDE, DEFAULT_LONGITUDE, DEFAULT_MAP_ZOOM);
+
+    this.view.addTileLayer(this.map);
+
+    this.marker = null;
+
+    this.view.setupMapClickHandler(this.map, (lat, lng) => {
+      if (this.marker) {
+        this.view.removeMarker(this.map, this.marker);
       }
-  
-      await this.loadLeaflet();
-  
-      this.setupMap();
-      this.setupCamera();
-      this.setupForm();
-      this.setupStopCameraOnHashChange();
-    }
-  
-    async loadLeaflet() {
-      if (window.L) return;
-  
-      const leafletCSS = document.createElement('link');
-      leafletCSS.rel = 'stylesheet';
-      leafletCSS.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-      document.head.appendChild(leafletCSS);
-  
-      const leafletJS = document.createElement('script');
-      leafletJS.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-      document.head.appendChild(leafletJS);
-  
-      await new Promise((resolve) => {
-        leafletJS.onload = resolve;
+
+      this.marker = this.view.addMarker(this.map, lat, lng);
+      this.view.updateLocationUI(lat, lng);
+    });
+  }
+
+  setupCamera() {
+    this.view.setupCameraEvents({
+      onCameraClick: this.handleCameraClick.bind(this),
+      onCaptureClick: this.handleCaptureClick.bind(this)
+    });
+  }
+
+  async handleCameraClick() {
+    try {
+      this.stream = await this.view.getUserMedia({
+        video: {
+          facingMode: 'environment',
+        },
       });
-    }
-  
-    setupMap() {
-      const { DEFAULT_LATITUDE, DEFAULT_LONGITUDE, DEFAULT_MAP_ZOOM } = this.CONFIG;
-      this.map = L.map('locationMap').setView([DEFAULT_LATITUDE, DEFAULT_LONGITUDE], DEFAULT_MAP_ZOOM);
-  
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
-  
-      this.locationText = document.getElementById('locationText');
-      this.latInput = document.getElementById('latInput');
-      this.lonInput = document.getElementById('lonInput');
-  
-      this.marker = null;
-  
-      this.map.on('click', (event) => {
-        const { lat, lng } = event.latlng;
-  
-        if (this.marker) {
-          this.map.removeLayer(this.marker);
-        }
-  
-        this.marker = L.marker([lat, lng]).addTo(this.map);
-  
-        this.locationText.textContent = `Lokasi: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-        this.latInput.value = lat;
-        this.lonInput.value = lng;
-      });
-    }
-  
-    setupCamera() {
-      this.cameraButton = document.getElementById('cameraButton');
-      this.cameraContainer = document.getElementById('cameraContainer');
-      this.cameraPreview = document.getElementById('cameraPreview');
-      this.captureButton = document.getElementById('captureButton');
-      this.photoPreview = document.getElementById('photoPreview');
-      this.photoCanvas = document.getElementById('photoCanvas');
-      this.photoInput = document.getElementById('photoInput');
-  
-      this.cameraButton.addEventListener('click', async () => {
-        try {
-          this.stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-              facingMode: 'environment',
-            },
-          });
-  
-          this.cameraPreview.srcObject = this.stream;
-          this.cameraContainer.classList.remove('hidden');
-        } catch (error) {
-          console.error('Error accessing camera:', error);
-          alert('Gagal mengakses kamera. Pastikan Anda memberikan izin dan perangkat memiliki kamera.');
-        }
-      });
-  
-      this.captureButton.addEventListener('click', () => {
-        if (!this.stream) return;
-  
-        const { videoWidth, videoHeight } = this.cameraPreview;
-  
-        this.photoCanvas.width = videoWidth;
-        this.photoCanvas.height = videoHeight;
-  
-        const context = this.photoCanvas.getContext('2d');
-        context.drawImage(this.cameraPreview, 0, 0, videoWidth, videoHeight);
-  
-        const photoDataUrl = this.photoCanvas.toDataURL('image/jpeg');
-  
-        this.photoPreview.src = photoDataUrl;
-        this.photoPreview.classList.remove('hidden');
-        this.photoInput.value = photoDataUrl;
-  
-        this.stream.getTracks().forEach((track) => track.stop());
-        this.stream = null;
-  
-        this.cameraContainer.classList.add('hidden');
-      });
-    }
-  
-    setupForm() {
-      const addStoryForm = document.getElementById('addStoryForm');
-  
-      addStoryForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-  
-        const description = document.getElementById('description').value;
-  
-        if (!this.photoInput.value) {
-          alert('Silakan ambil foto dengan kamera');
-          return;
-        }
-  
-        if (!this.latInput.value || !this.lonInput.value) {
-          alert('Silakan pilih lokasi pada peta');
-          return;
-        }
-  
-        try {
-          const base64Data = this.photoInput.value.split(',')[1];
-          const blob = await fetch(`data:image/jpeg;base64,${base64Data}`).then((res) => res.blob());
-  
-          const formData = new FormData();
-          formData.append('description', description);
-          formData.append('photo', blob, 'photo.jpg');
-          formData.append('lat', this.latInput.value);
-          formData.append('lon', this.lonInput.value);
-  
-          const response = await this.Api.addNewStory(formData);
-  
-          if (response.error) {
-            alert(response.message);
-            return;
-          }
-  
-          alert('Cerita berhasil ditambahkan!');
-          window.location.hash = '#/';
-        } catch (error) {
-          console.error(error);
-          alert('Terjadi kesalahan saat menambahkan cerita');
-        }
-      });
-    }
-  
-    setupStopCameraOnHashChange() {
-      window.addEventListener('hashchange', () => {
-        this.stopCamera();
-      });
-    }
-  
-    stopCamera() {
-      if (this.stream) {
-        this.stream.getTracks().forEach((track) => track.stop());
-        this.stream = null;
-        console.log('Kamera dimatikan karena user pindah halaman.');
-      }
+
+      this.view.showCameraPreview(this.stream);
+    } catch (error) {
+      this.view.logError('Error accessing camera:', error);
+      this.view.showAlert('Gagal mengakses kamera. Pastikan Anda memberikan izin dan perangkat memiliki kamera.');
     }
   }
-  
+
+  handleCaptureClick() {
+    if (!this.stream) return;
+
+    const photoDataUrl = this.view.capturePhoto();
+    
+    this.view.stopMediaStream(this.stream);
+    this.stream = null;
+
+    this.view.showCapturedPhoto(photoDataUrl);
+  }
+
+  setupForm() {
+    this.view.setupFormEvents({
+      onSubmit: this.handleFormSubmit.bind(this)
+    });
+  }
+
+  async handleFormSubmit(formData) {
+    const { description, photoDataUrl, lat, lon } = formData;
+
+    if (!photoDataUrl) {
+      this.view.showAlert('Silakan ambil foto dengan kamera');
+      return;
+    }
+
+    if (!lat || !lon) {
+      this.view.showAlert('Silakan pilih lokasi pada peta');
+      return;
+    }
+
+    try {
+      const base64Data = photoDataUrl.split(',')[1];
+      const blob = await this.view.createBlobFromBase64(base64Data);
+
+      const apiFormData = this.view.createFormData();
+      this.view.appendToFormData(apiFormData, 'description', description);
+      this.view.appendToFormData(apiFormData, 'photo', blob, 'photo.jpg');
+      this.view.appendToFormData(apiFormData, 'lat', lat);
+      this.view.appendToFormData(apiFormData, 'lon', lon);
+
+      const response = await this.model.addNewStory(apiFormData);
+
+      if (response.error) {
+        this.view.showAlert(response.message);
+        return;
+      }
+
+      this.view.showAlert('Cerita berhasil ditambahkan!');
+      this.view.redirectToHome();
+    } catch (error) {
+      this.view.logError(error);
+      this.view.showAlert('Terjadi kesalahan saat menambahkan cerita');
+    }
+  }
+
+  stopCamera() {
+    if (this.stream) {
+      this.view.stopMediaStream(this.stream);
+      this.stream = null;
+      this.view.logMessage('Kamera dimatikan karena user pindah halaman.');
+    }
+  }
+}
