@@ -271,7 +271,6 @@ main {
 .story-detail__title {
   font-size: 2rem;
   margin-bottom: 8px;
-  color: #333;
 }
 
 .story-detail__date {
@@ -295,7 +294,6 @@ main {
 
 .story-detail__description {
   line-height: 1.8;
-  color: #333;
   margin-bottom: 24px;
 }
 
@@ -581,4 +579,741 @@ footer {
 
 .about__developer p {
   margin-bottom: 8px;
+}
+/* Push Notification Styles */
+.push-notification-container {
+  margin: 1rem 0;
+  padding: 0 1rem;
+}
+
+.notification-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1e5e9;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.notification-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.notification-icon {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.notification-content p {
+  margin: 0;
+  color: #718096;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.subscribe-btn {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.subscribe-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+}
+
+.subscribe-btn:active {
+  transform: translateY(0);
+}
+
+.subscribe-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.subscribe-btn .btn-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.notification-not-supported {
+  background: #fed7d7;
+  color: #c53030;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid #fbb6ce;
+}
+
+.notification-not-supported p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Subscribed state styling */
+.notification-subscribed {
+  background: #c6f6d5;
+  color: #2f855a;
+  border: 1px solid #9ae6b4;
+}
+
+.notification-subscribed .notification-icon {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-subscribed .notification-content h3 {
+  color: #2f855a;
+  margin: 0 0 0.5rem 0;
+}
+
+.notification-subscribed .notification-content p {
+  color: #2f855a;
+  margin: 0;
+}
+
+.unsubscribe-btn {
+  background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.unsubscribe-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 101, 101, 0.4);
+  background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+}
+
+.unsubscribe-btn:active {
+  transform: translateY(0);
+}
+
+.unsubscribe-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.unsubscribe-btn .btn-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .notification-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .notification-content {
+    text-align: center;
+  }
+
+  .subscribe-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .notification-subscribed {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+
+  .unsubscribe-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .notification-card {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+  }
+
+  .notification-content h3 {
+    color: #f7fafc;
+  }
+
+  .notification-content p {
+    color: #a0aec0;
+  }
+
+  .notification-subscribed {
+    background: #2d5a3d;
+    border-color: #38a169;
+  }
+
+  .unsubscribe-btn {
+    background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+  }
+}
+
+/* Tambahkan ke src/styles/styles.css */
+
+/* Push Notification Styles */
+.push-notification-container {
+  margin: 1rem 0;
+  padding: 0 1rem;
+}
+
+.notification-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1e5e9;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.notification-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.notification-icon {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.notification-content p {
+  margin: 0;
+  color: #718096;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.subscribe-btn {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.subscribe-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+}
+
+.subscribe-btn:active {
+  transform: translateY(0);
+}
+
+.subscribe-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.subscribe-btn .btn-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.notification-not-supported {
+  background: #fed7d7;
+  color: #c53030;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid #fbb6ce;
+}
+
+.notification-not-supported p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Subscribed state styling */
+.notification-subscribed {
+  background: #c6f6d5;
+  color: #2f855a;
+  border: 1px solid #9ae6b4;
+}
+
+.notification-subscribed .notification-icon {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-subscribed .notification-content h3 {
+  color: #2f855a;
+  margin: 0 0 0.5rem 0;
+}
+
+.notification-subscribed .notification-content p {
+  color: #2f855a;
+  margin: 0;
+}
+
+.unsubscribe-btn {
+  background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.unsubscribe-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 101, 101, 0.4);
+  background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+}
+
+.unsubscribe-btn:active {
+  transform: translateY(0);
+}
+
+.unsubscribe-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.unsubscribe-btn .btn-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Story Actions - Try Notify Me Button */
+.story-actions {
+  margin: 2rem 0;
+  padding: 1rem;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  text-decoration: none;
+  border: none;
+}
+
+.btn-outline {
+  background: transparent;
+  color: #4299e1;
+  border: 2px solid #4299e1;
+}
+
+.btn-outline:hover {
+  background: #4299e1;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+}
+
+.btn-outline:active {
+  transform: translateY(0);
+}
+
+.btn-outline svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Story Detail Styles */
+.story-detail {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.story-header {
+  margin-bottom: 1.5rem;
+}
+
+.story-header h1 {
+  margin: 0 0 0.5rem 0;
+  color: #2d3748;
+  font-size: 1.8rem;
+}
+
+.story-date {
+  color: #718096;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.story-body {
+  margin-bottom: 2rem;
+}
+
+.story-image {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.story-description {
+  line-height: 1.6;
+  color: #4a5568;
+  font-size: 1.1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .notification-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .notification-content {
+    text-align: center;
+  }
+
+  .subscribe-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .notification-subscribed {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+
+  .unsubscribe-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .story-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .story-header h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .notification-card {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+  }
+
+  .notification-content h3 {
+    color: #f7fafc;
+  }
+
+  .notification-content p {
+    color: #a0aec0;
+  }
+
+  .notification-subscribed {
+    background: #2d5a3d;
+    border-color: #38a169;
+  }
+
+  .unsubscribe-btn {
+    background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+  }
+
+  .story-detail {
+    background: #1a202c;
+    color: #e2e8f0;
+  }
+
+  .story-header h1 {
+    color: #f7fafc;
+  }
+
+  .story-description {
+    color: #cbd5e0;
+  }
+
+  .story-actions {
+    border-color: #4a5568;
+  }
+}
+
+loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.notification-not-supported {
+  background: #fed7d7;
+  color: #c53030;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid #fbb6ce;
+}
+
+.notification-not-supported p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Subscribed state styling */
+.notification-subscribed {
+  background: #c6f6d5;
+  color: #2f855a;
+  border: 1px solid #9ae6b4;
+}
+
+.notification-subscribed .notification-icon {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-subscribed .notification-content h3 {
+  color: #2f855a;
+  margin: 0 0 0.5rem 0;
+}
+
+.notification-subscribed .notification-content p {
+  color: #2f855a;
+  margin: 0;
+}
+
+.unsubscribe-btn {
+  background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.unsubscribe-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 101, 101, 0.4);
+  background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+}
+
+.unsubscribe-btn:active {
+  transform: translateY(0);
+}
+
+.unsubscribe-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.unsubscribe-btn .btn-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .notification-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .notification-content {
+    text-align: center;
+  }
+
+  .subscribe-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .notification-subscribed {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+
+  .unsubscribe-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .notification-card {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+  }
+
+  .notification-content h3 {
+    color: #f7fafc;
+  }
+
+  .notification-content p {
+    color: #a0aec0;
+  }
+
+  .notification-subscribed {
+    background: #2d5a3d;
+    border-color: #38a169;
+  }
+
+  .unsubscribe-btn {
+    background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+  }
 }

@@ -2,6 +2,7 @@
 import 'regenerator-runtime';
 import '../styles/styles.css';
 import App from './pages/app';
+import { registerServiceWorker } from './utils';
 
 const app = new App({
   navigationDrawer: document.getElementById('navigationDrawer'),
@@ -11,6 +12,14 @@ const app = new App({
 
 const authNavItem = document.getElementById('authNavItem');
 const authDrawerItem = document.getElementById('authDrawerItem');
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await registerServiceWorker();
+ 
+  window.addEventListener('hashchange', async () => {
+    await app.renderPage();
+  });
+});
 
 const updateAuthUI = () => {
   const token = localStorage.getItem('token');

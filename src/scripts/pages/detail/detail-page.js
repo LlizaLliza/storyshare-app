@@ -15,7 +15,7 @@ export default class DetailPage {
     return `
       <section class="container story-detail">
         <div id="story-content" class="story-detail__content">
-          <div class="loader"></div>
+          <div class="loader">Loading...</div>
         </div>
         <div id="story-map" class="story-detail__map"></div>
       </section>
@@ -23,14 +23,26 @@ export default class DetailPage {
   }
 
   async afterRender() {
-    const { id } = this.parsePathname();
+    console.log('DetailPage: afterRender called');
+    
+    try {
+      const { id } = this.parsePathname();
+      console.log('DetailPage: Parsed ID from URL:', id);
 
-    if (!id) {
-      this.showError('ID cerita tidak valid');
-      return;
+      if (!id) {
+        console.error('DetailPage: No ID found in URL');
+        this.showError('ID cerita tidak valid');
+        return;
+      }
+
+      console.log('DetailPage: Loading detail for story ID:', id);
+      await this.presenter.loadDetail(id);
+      console.log('DetailPage: Detail loading completed');
+      
+    } catch (error) {
+      console.error('DetailPage: Error in afterRender:', error);
+      this.showError('Terjadi kesalahan saat memuat detail cerita');
     }
-
-    await this.presenter.loadDetail(id);
   }
 
   redirectToLogin() {
@@ -38,11 +50,17 @@ export default class DetailPage {
   }
 
   parsePathname() {
-    return parseActivePathname();
+    const result = parseActivePathname();
+    console.log('DetailPage: parsePathname result:', result);
+    return result;
   }
 
   logError(error) {
-    console.error(error);
+    console.error('DetailPage: Error logged:', error);
+  }
+
+  showAlert(message) {
+    alert(message);
   }
 
   formatDate(dateString) {
@@ -92,7 +110,14 @@ export default class DetailPage {
   }
 
   showStoryDetail(story) {
+    console.log('DetailPage: Showing story detail:', story);
+    
     const storyContent = document.getElementById('story-content');
+    if (!storyContent) {
+      console.error('DetailPage: story-content element not found');
+      return;
+    }
+    
     const formattedDate = this.formatDate(story.createdAt);
     
     storyContent.innerHTML = `
@@ -103,29 +128,46 @@ export default class DetailPage {
       </div>
       <p class="story-detail__description">${story.description}</p>
     `;
+    
+    console.log('DetailPage: Story detail displayed successfully');
   }
 
   showMap(lat, lon, name, description) {
+    console.log('DetailPage: Showing map for:', { lat, lon, name });
+    
     this.loadLeafletLibrary(() => {
       this._initMap(lat, lon, name, description);
     });
   }
 
   _initMap(lat, lon, name, description) {
-    const map = this.createMap('story-map', lat, lon, CONFIG.DEFAULT_MAP_ZOOM);
-    this.addTileLayer(map);
-    
-    const truncatedDescription = this.truncateText(description, 50);
-    const popupContent = `<b>${name}</b><br>${truncatedDescription}`;
-    
-    this.addMarkerWithPopup(map, lat, lon, popupContent);
+    try {
+      const map = this.createMap('story-map', lat, lon, CONFIG.DEFAULT_MAP_ZOOM);
+      this.addTileLayer(map);
+      
+      const truncatedDescription = this.truncateText(description, 50);
+      const popupContent = `<b>${name}</b><br>${truncatedDescription}`;
+      
+      this.addMarkerWithPopup(map, lat, lon, popupContent);
+      console.log('DetailPage: Map initialized successfully');
+    } catch (error) {
+      // console.error('DetailPage: Error initializing map:', error);
+    }
   }
 
   showError(message) {
-    document.getElementById('story-content').innerHTML = `<p>${message}</p>`;
+    console.log('DetailPage: Showing error:', message);
+    const storyContent = document.getElementById('story-content');
+    if (storyContent) {
+      storyContent.innerHTML = `<p class="error-message">${message}</p>`;
+    }
   }
 
   showNoLocation() {
-    document.getElementById('story-map').innerHTML = '<p>Lokasi tidak tersedia</p>';
+    console.log('DetailPage: Showing no location message');
+    const mapElement = document.getElementById('story-map');
+    if (mapElement) {
+      mapElement.innerHTML = '<p>Lokasi tidak tersedia</p>';
+    }
   }
 }
