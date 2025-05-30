@@ -57,14 +57,43 @@ class Api {
 
   static async getAllStories() {
     const token = localStorage.getItem('token');
-    const response = await fetch(ENDPOINTS.STORIES, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-    
-    return await response.json();
+    const cacheName = 'story-api-json';
+    const cacheKey = ENDPOINTS.STORIES;
+  
+    try {
+      // Coba fetch data dari jaringan (API)
+      const response = await fetch(cacheKey, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Gagal mengambil data dari jaringan');
+      }
+  
+      // Kalau berhasil, simpan juga ke cache manual agar update data
+      const cache = await caches.open(cacheName);
+      cache.put(cacheKey, response.clone());
+  
+      // Kembalikan data JSON
+      return await response.json();
+  
+    } catch (error) {
+      // Kalau fetch gagal, coba ambil data dari cache
+      const cache = await caches.open(cacheName);
+      const cachedResponse = await cache.match(cacheKey);
+  
+      if (cachedResponse) {
+        // Kembalikan data dari cache jika ada
+        return await cachedResponse.json();
+      }
+  
+      // Kalau tidak ada cache, lempar error supaya ditangani di presenter
+      throw error;
+    }
   }
+  
 
   static async getStoryDetail(id) {
     const token = localStorage.getItem('token');
