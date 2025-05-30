@@ -1,5 +1,3 @@
-// src/scripts/templates.js
-
 const generateSubscribeButtonTemplate = () => {
     return `
     <div class="push-notification-container">

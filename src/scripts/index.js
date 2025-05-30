@@ -14,19 +14,12 @@ const authNavItem = document.getElementById('authNavItem');
 const authDrawerItem = document.getElementById('authDrawerItem');
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const isRegistered = await registerServiceWorker();
+  await registerServiceWorker();
 
-  if (isRegistered) {
-    console.log('Berhasil mendaftarkan service worker.');
-  } else {
-    console.log('Gagal mendaftarkan service worker atau tidak didukung.');
-  }
- 
   window.addEventListener('hashchange', async () => {
     await app.renderPage();
   });
 });
-
 
 const updateAuthUI = () => {
   const token = localStorage.getItem('token');

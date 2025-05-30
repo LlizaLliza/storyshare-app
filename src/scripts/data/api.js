@@ -9,7 +9,6 @@ const ENDPOINTS = {
   UNSUBSCRIBE: `${CONFIG.BASE_URL}/notifications/subscribe`,
 };
 
-// Helper function to get access token
 function getAccessToken() {
   return localStorage.getItem('token');
 }
@@ -61,7 +60,6 @@ class Api {
     const cacheKey = ENDPOINTS.STORIES;
   
     try {
-      // Coba fetch data dari jaringan (API)
       const response = await fetch(cacheKey, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -72,24 +70,19 @@ class Api {
         throw new Error('Gagal mengambil data dari jaringan');
       }
   
-      // Kalau berhasil, simpan juga ke cache manual agar update data
       const cache = await caches.open(cacheName);
       cache.put(cacheKey, response.clone());
   
-      // Kembalikan data JSON
       return await response.json();
   
     } catch (error) {
-      // Kalau fetch gagal, coba ambil data dari cache
       const cache = await caches.open(cacheName);
       const cachedResponse = await cache.match(cacheKey);
   
       if (cachedResponse) {
-        // Kembalikan data dari cache jika ada
         return await cachedResponse.json();
       }
   
-      // Kalau tidak ada cache, lempar error supaya ditangani di presenter
       throw error;
     }
   }
@@ -119,7 +112,6 @@ class Api {
     return await response.json();
   }
 
-  // Add notification methods to main Api class
   static async sendStoryToAllUserViaNotification(storyId) {
     return await sendStoryToAllUserViaNotification(storyId);
   }
@@ -129,7 +121,6 @@ class Api {
   }
 }
 
-// Push Notification API Functions
 export async function subscribePushNotification({ endpoint, keys: { p256dh, auth } }) {
   const accessToken = getAccessToken();
   const data = JSON.stringify({
@@ -173,7 +164,6 @@ export async function unsubscribePushNotification({ endpoint }) {
   };
 }
 
-// Send notification to all users when new story is created
 export async function sendStoryToAllUserViaNotification(storyId) {
   const accessToken = getAccessToken();
   
@@ -184,7 +174,6 @@ export async function sendStoryToAllUserViaNotification(storyId) {
   });
   
   if (!accessToken) {
-    console.error('No access token available for notify all users');
     return {
       error: true,
       message: 'No access token available',
@@ -201,18 +190,13 @@ export async function sendStoryToAllUserViaNotification(storyId) {
       },
     });
     
-    console.log('Notify all users response status:', fetchResponse.status);
-    
     if (!fetchResponse.ok) {
-      console.error('Notify all users response not ok:', fetchResponse.status, fetchResponse.statusText);
       
       let errorMessage = 'Network response was not ok';
       try {
         const errorData = await fetchResponse.text();
-        console.log('Notify all error response body:', errorData);
         errorMessage = errorData || errorMessage;
       } catch (parseError) {
-        console.log('Could not parse notify all error response');
       }
       
       return {
@@ -223,7 +207,6 @@ export async function sendStoryToAllUserViaNotification(storyId) {
     }
     
     const json = await fetchResponse.json();
-    console.log('Notify all users API response:', json);
     
     return {
       ...json,
@@ -231,7 +214,6 @@ export async function sendStoryToAllUserViaNotification(storyId) {
     };
     
   } catch (error) {
-    console.error('sendStoryToAllUserViaNotification fetch error:', error);
     
     if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
       return {
@@ -249,7 +231,6 @@ export async function sendStoryToAllUserViaNotification(storyId) {
   }
 }
 
-// Send notification to me (for testing)
 export async function sendStoryToMeViaNotification(storyId) {
   const accessToken = getAccessToken();
   
@@ -260,7 +241,6 @@ export async function sendStoryToMeViaNotification(storyId) {
   });
   
   if (!accessToken) {
-    console.error('No access token available');
     return {
       error: true,
       message: 'No access token available',
@@ -277,21 +257,13 @@ export async function sendStoryToMeViaNotification(storyId) {
       },
     });
     
-    console.log('Fetch response status:', fetchResponse.status);
-    console.log('Fetch response ok:', fetchResponse.ok);
-    
-    // Check if response is ok
     if (!fetchResponse.ok) {
-      console.error('Response not ok:', fetchResponse.status, fetchResponse.statusText);
       
-      // Try to get error message from response
       let errorMessage = 'Network response was not ok';
       try {
         const errorData = await fetchResponse.text();
-        console.log('Error response body:', errorData);
         errorMessage = errorData || errorMessage;
       } catch (parseError) {
-        console.log('Could not parse error response');
       }
       
       return {
@@ -310,9 +282,7 @@ export async function sendStoryToMeViaNotification(storyId) {
     };
     
   } catch (error) {
-    console.error('sendStoryToMeViaNotification fetch error:', error);
     
-    // Handle different types of errors
     if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
       return {
         error: true,

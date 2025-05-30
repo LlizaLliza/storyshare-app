@@ -1,4 +1,3 @@
-// src/scripts/app.js
 import routes from '../routes/routes';
 import { getActiveRoute } from '../routes/url-parser';
 import {
@@ -54,7 +53,6 @@ class App {
       return;
     }
 
-    // Check if push notifications are supported
     if (!isPushNotificationSupported()) {
       pushNotificationTools.innerHTML = `
         <div class="notification-not-supported">
@@ -63,41 +61,29 @@ class App {
       `;
       return;
     }
-
-    console.log('Setting up push notification...');
     
     try {
       const isSubscribed = await isCurrentPushSubscriptionAvailable();
-      console.log('Is subscribed:', isSubscribed);
 
       if (isSubscribed) {
-        console.log('Showing unsubscribe button...');
         pushNotificationTools.innerHTML = generateUnsubscribeButtonTemplate();
         
         const unsubscribeButton = document.getElementById('unsubscribe-button');
         if (unsubscribeButton) {
-          console.log('Adding event listener to unsubscribe button');
           
           unsubscribeButton.addEventListener('click', async () => {
-            console.log('=== UNSUBSCRIBE BUTTON CLICKED ===');
             
             try {
-              // Show loading state
               unsubscribeButton.innerHTML = `
                 <span class="btn-text">Sedang Memproses...</span>
                 <div class="loading-spinner"></div>
               `;
               unsubscribeButton.disabled = true;
               
-              // PENTING: Call unsubscribe function
-              console.log('About to call unsubscribe() function...');
               await unsubscribe();
-              console.log('Unsubscribe function completed successfully');
               
             } catch (error) {
-              console.error('Error during unsubscription:', error);
               
-              // Reset button on error
               unsubscribeButton.innerHTML = `
                 <span class="btn-text">Berhenti Berlangganan</span>
                 <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -108,8 +94,6 @@ class App {
               
               alert('Terjadi kesalahan saat berhenti berlangganan. Silakan coba lagi.');
             } finally {
-              // Always refresh the push notification setup after unsubscribe attempt
-              console.log('Refreshing push notification setup after unsubscribe...');
               setTimeout(async () => {
                 await this.#setupPushNotification();
               }, 1000);
@@ -120,31 +104,25 @@ class App {
         return;
       }
 
-      console.log('Showing subscribe button...');
       pushNotificationTools.innerHTML = generateSubscribeButtonTemplate();
       
       const subscribeButton = document.getElementById('subscribe-button');
       if (subscribeButton) {
         subscribeButton.addEventListener('click', async () => {
           try {
-            console.log('Subscribe button clicked');
             
-            // Show loading state
             subscribeButton.innerHTML = `
               <span class="btn-text">Sedang Memproses...</span>
               <div class="loading-spinner"></div>
             `;
             subscribeButton.disabled = true;
             
-            // Call the subscribe function
             await subscribe();
             
           } catch (error) {
             console.error('Error during subscription:', error);
             alert('Terjadi kesalahan saat berlangganan notifikasi. Silakan coba lagi.');
           } finally {
-            // Always refresh the push notification setup
-            console.log('Refreshing push notification setup after subscribe...');
             setTimeout(async () => {
               await this.#setupPushNotification();
             }, 1000);
@@ -175,7 +153,6 @@ class App {
         this.#content.innerHTML = await page.render();
         await page.afterRender();
         
-        // Setup push notification after page render
         if (isServiceWorkerAvailable()) {
           await this.#setupPushNotification();
         }
@@ -184,7 +161,6 @@ class App {
       this.#content.innerHTML = await page.render();
       await page.afterRender();
       
-      // Setup push notification after page render
       if (isServiceWorkerAvailable()) {
         await this.#setupPushNotification();
       }

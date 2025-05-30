@@ -104,8 +104,6 @@ export default class AddStoryPresenter {
         return;
       }
 
-      // BAGIAN BARU: Kirim notifikasi ke semua user setelah story berhasil dibuat
-      // No need to wait response - jalankan di background
       this.#notifyToAllUser(response.story?.id);
 
       this.view.showAlert('Cerita berhasil ditambahkan!');
@@ -116,15 +114,12 @@ export default class AddStoryPresenter {
     }
   }
 
-  // BAGIAN BARU: Method untuk mengirim notifikasi ke semua user
   async #notifyToAllUser(storyId) {
     if (!storyId) {
-      console.warn('Story ID not found, skip notification');
       return false;
     }
 
     try {
-      console.log('Sending notification to all users for story:', storyId);
       const response = await Api.sendStoryToAllUserViaNotification(storyId);
       
       if (!response.ok) {

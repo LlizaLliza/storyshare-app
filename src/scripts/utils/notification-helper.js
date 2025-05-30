@@ -1,5 +1,3 @@
-// src/scripts/utils/notification-helper.js
-
 import { convertBase64ToUint8Array } from './index';
 import { VAPID_PUBLIC_KEY } from '../config';
 import { subscribePushNotification, unsubscribePushNotification } from '../data/api';
@@ -41,15 +39,12 @@ export async function getPushSubscription() {
 try {
     const registration = await navigator.serviceWorker.getRegistration();
     if (!registration) {
-    console.log('No service worker registration found');
     return null;
     }
     
     const subscription = await registration.pushManager.getSubscription();
-    console.log('Current push subscription:', subscription);
     return subscription;
 } catch (error) {
-    console.error('Error getting push subscription:', error);
     return null;
 }
 }
@@ -57,7 +52,6 @@ try {
 export async function isCurrentPushSubscriptionAvailable() {
 const subscription = await getPushSubscription();
 const isAvailable = !!subscription;
-console.log('Push subscription available:', isAvailable);
 return isAvailable;
 }
 
@@ -83,8 +77,6 @@ if (await isCurrentPushSubscriptionAvailable()) {
     return;
 }
 
-console.log('Mulai berlangganan push notification...');
-
 let pushSubscription;
 
 try {
@@ -97,32 +89,22 @@ try {
     return;
     }
     
-    console.log('Subscribing to push manager...');
     pushSubscription = await registration.pushManager.subscribe(generateSubscribeOptions());
-    console.log('Push subscription created:', pushSubscription);
 
     const { endpoint, keys } = pushSubscription.toJSON();
-    console.log('Subscription details:', { endpoint, keys });
     
-    console.log('Sending subscription to API...');
     const response = await subscribePushNotification({ endpoint, keys });
-    console.log('API response:', response);
 
     if (!response.ok) {
-    console.error('subscribe: API response not ok:', response);
     alert(failureSubscribeMessage + ' (API Error)');
 
-    // Undo subscribe to push notification
-    console.log('Unsubscribing due to API error...');
     await pushSubscription.unsubscribe();
 
     return;
     }
 
-    console.log('Subscription successful!');
     alert(successSubscribeMessage);
 } catch (error) {
-    console.error('subscribe: error:', error);
     alert(failureSubscribeMessage + ' (Error: ' + error.message + ')');
 }
 }
@@ -131,11 +113,8 @@ export async function unsubscribe() {
 const failureUnsubscribeMessage = 'Langganan push notification gagal dinonaktifkan.';
 const successUnsubscribeMessage = 'Langganan push notification berhasil dinonaktifkan.';
 
-console.log('=== STARTING UNSUBSCRIBE PROCESS ===');
-
 try {
     const pushSubscription = await getPushSubscription();
-    console.log('Initial subscription check:', pushSubscription);
     
     if (!pushSubscription) {
     alert('Tidak bisa memutus langganan push notification karena belum berlangganan sebelumnya.');
@@ -146,7 +125,6 @@ try {
     console.log('Subscription details:', { endpoint: endpoint.substring(0, 50) + '...', keys });
     
     console.log('Step 1: Unsubscribing from API...');
-    // Unsubscribe from API first
     const response = await unsubscribePushNotification({ endpoint });
     console.log('API unsubscribe response:', response);
     
@@ -158,7 +136,6 @@ try {
     
     console.log('Step 2: Unsubscribing from push manager...');
     
-    // Then unsubscribe from push manager
     const unsubscribed = await pushSubscription.unsubscribe();
     console.log('Push manager unsubscribe result:', unsubscribed);
     
@@ -166,7 +143,6 @@ try {
     console.error('Failed to unsubscribe from push manager, rolling back API subscription...');
     alert(failureUnsubscribeMessage);
     
-    // Rollback: Re-subscribe to API if push manager unsubscribe failed
     try {
         await subscribePushNotification({ endpoint, keys });
         console.log('Rollback completed');
@@ -176,7 +152,6 @@ try {
     return;
     }
     
-    // Verify unsubscription
     console.log('Step 3: Verifying unsubscription...');
     const verifySubscription = await getPushSubscription();
     console.log('Verification - subscription after unsubscribe:', verifySubscription);

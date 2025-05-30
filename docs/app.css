@@ -997,6 +997,39 @@ footer {
   height: 16px;
 }
 
+.story-detail__actions {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.save-button {
+  background-color: #4CAF50;
+  /* hijau segar */
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.save-button .material-icons {
+  font-size: 20px;
+}
+
+.save-button:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+.save-button:active {
+  transform: scale(0.98);
+}
+
 /* Story Actions - Try Notify Me Button */
 .story-actions {
   margin: 2rem 0;
