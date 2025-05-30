@@ -1,8 +1,9 @@
 export default class DetailPresenter {
-  constructor({ model, view }) {
+  constructor({ model, dbModel, view }) {
     this.model = model;
+    this.dbModel = dbModel;  // ⏩ tambahkan database model
     this.view = view;
-    console.log('DetailPresenter: Initialized with model and view');
+    console.log('DetailPresenter: Initialized with model, dbModel, and view');
   }
 
   async loadDetail(id) {
@@ -58,4 +59,64 @@ export default class DetailPresenter {
       this.view.showError('Gagal memuat detail cerita');
     }
   }
+
+  // ⏩ method baru untuk menyimpan cerita
+  async saveStory(id) {
+    try {
+      console.log('DetailPresenter: Saving story with ID:', id);
+      const apiResponse = await this.model.getStoryDetail(id);
+
+      if (apiResponse.error || !apiResponse.story) {
+        throw new Error(apiResponse.message || 'Cerita tidak ditemukan');
+      }
+
+      await this.dbModel.putStory(apiResponse.story);
+      console.log('DetailPresenter: Story saved successfully');
+      this.view.saveToBookmarkSuccessfully('Cerita berhasil disimpan!');
+    } catch (error) {
+      console.error('DetailPresenter: Error saving story:', error);
+      this.view.saveToBookmarkFailed(error.message);
+    }
+  }
+
+  async isStorySaved(id) {
+    try {
+      const story = await this.dbModel.getStory(id);
+      return !!story; // true jika ada, false jika tidak ada
+    } catch (error) {
+      console.error('DetailPresenter: Error checking story saved:', error);
+      return false;
+    }
+  }
+  
+  async deleteStory(id) {
+    try {
+      await this.dbModel.deleteStory(id);
+      console.log('DetailPresenter: Story deleted successfully');
+      this.view.saveToBookmarkSuccessfully('Cerita berhasil dihapus!');
+      return true;
+    } catch (error) {
+      console.error('DetailPresenter: Error deleting story:', error);
+      this.view.saveToBookmarkFailed('Gagal menghapus cerita');
+      return false;
+    }
+  }
+
+  async saveStory(id) {
+    try {
+      const apiResponse = await this.model.getStoryDetail(id);
+  
+      if (apiResponse.error || !apiResponse.story) {
+        throw new Error(apiResponse.message || 'Cerita tidak ditemukan');
+      }
+  
+      await this.dbModel.putStory(apiResponse.story);
+      console.log('DetailPresenter: Story saved successfully');
+      // Jangan tampilkan alert di sini, biar di DetailPage bisa atur sendiri
+      return true;
+    } catch (error) {
+      console.error('DetailPresenter: Error saving story:', error);
+      return false;
+    }
+  }      
 }

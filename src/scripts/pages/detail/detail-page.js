@@ -2,11 +2,13 @@ import Api from '../../data/api';
 import { parseActivePathname } from '../../routes/url-parser';
 import CONFIG from '../../config';
 import DetailPresenter from './detail-presenter';
+import Database from '../../database';  // pastikan ini ada
 
 export default class DetailPage {
   constructor() {
     this.presenter = new DetailPresenter({
       model: Api,
+      dbModel: Database,
       view: this
     });
   }
@@ -18,32 +20,78 @@ export default class DetailPage {
           <div class="loader">Loading...</div>
         </div>
         <div id="story-map" class="story-detail__map"></div>
+        <div id="story-actions" class="story-detail__actions">
+          <button id="story-detail-save">Simpan Cerita</button>
+        </div>
       </section>
     `;
   }
 
   async afterRender() {
     console.log('DetailPage: afterRender called');
-    
+  
     try {
       const { id } = this.parsePathname();
       console.log('DetailPage: Parsed ID from URL:', id);
-
+  
       if (!id) {
         console.error('DetailPage: No ID found in URL');
         this.showError('ID cerita tidak valid');
         return;
       }
-
+  
+      // Load detail story
       console.log('DetailPage: Loading detail for story ID:', id);
       await this.presenter.loadDetail(id);
       console.log('DetailPage: Detail loading completed');
-      
+  
+      // Cek apakah story sudah ada di IndexedDB
+      const isSaved = await this.presenter.isStorySaved(id);
+      this.updateSaveButton(isSaved);
+  
+      // Pasang event listener toggle tombol simpan/hapus
+      const saveButton = document.getElementById('story-detail-save');
+      if (saveButton) {
+        saveButton.addEventListener('click', async () => {
+          console.log('DetailPage: Save/Delete button clicked');
+  
+          if (saveButton.textContent === 'Simpan Cerita') {
+            // Simpan cerita
+            const success = await this.presenter.saveStory(id);
+            if (success) {
+              this.updateSaveButton(true);
+              this.saveToBookmarkSuccessfully('Cerita berhasil disimpan.');
+            } else {
+              this.saveToBookmarkFailed('Gagal menyimpan cerita.');
+            }
+          } else {
+            // Hapus cerita
+            const success = await this.presenter.deleteStory(id);
+            if (success) {
+              this.updateSaveButton(false);
+              this.saveToBookmarkSuccessfully('Cerita berhasil dihapus.');
+            } else {
+              this.saveToBookmarkFailed('Gagal menghapus cerita.');
+            }
+          }
+        });
+      } else {
+        console.error('DetailPage: Save button not found in DOM');
+      }
+  
     } catch (error) {
       console.error('DetailPage: Error in afterRender:', error);
       this.showError('Terjadi kesalahan saat memuat detail cerita');
     }
   }
+  
+  // Fungsi untuk update tombol save/hapus sesuai status
+  updateSaveButton(isSaved) {
+    const saveButton = document.getElementById('story-detail-save');
+    if (saveButton) {
+      saveButton.textContent = isSaved ? 'Hapus Cerita' : 'Simpan Cerita';
+    }
+  }  
 
   redirectToLogin() {
     window.location.hash = '#/login';
@@ -111,15 +159,15 @@ export default class DetailPage {
 
   showStoryDetail(story) {
     console.log('DetailPage: Showing story detail:', story);
-    
+
     const storyContent = document.getElementById('story-content');
     if (!storyContent) {
       console.error('DetailPage: story-content element not found');
       return;
     }
-    
+
     const formattedDate = this.formatDate(story.createdAt);
-    
+
     storyContent.innerHTML = `
       <h1 class="story-detail__title">${story.name}</h1>
       <p class="story-detail__date">${formattedDate}</p>
@@ -128,13 +176,13 @@ export default class DetailPage {
       </div>
       <p class="story-detail__description">${story.description}</p>
     `;
-    
+
     console.log('DetailPage: Story detail displayed successfully');
   }
 
   showMap(lat, lon, name, description) {
     console.log('DetailPage: Showing map for:', { lat, lon, name });
-    
+
     this.loadLeafletLibrary(() => {
       this._initMap(lat, lon, name, description);
     });
@@ -144,10 +192,10 @@ export default class DetailPage {
     try {
       const map = this.createMap('story-map', lat, lon, CONFIG.DEFAULT_MAP_ZOOM);
       this.addTileLayer(map);
-      
+
       const truncatedDescription = this.truncateText(description, 50);
       const popupContent = `<b>${name}</b><br>${truncatedDescription}`;
-      
+
       this.addMarkerWithPopup(map, lat, lon, popupContent);
       console.log('DetailPage: Map initialized successfully');
     } catch (error) {
@@ -169,5 +217,14 @@ export default class DetailPage {
     if (mapElement) {
       mapElement.innerHTML = '<p>Lokasi tidak tersedia</p>';
     }
+  }
+
+  // ⏩ TAMBAHKAN FUNGSI INI UNTUK FEEDBACK HASIL SIMPAN
+  saveToBookmarkSuccessfully(message) {
+    alert(message);  // bisa diganti pakai toast atau modal kalau mau
+  }
+
+  saveToBookmarkFailed(message) {
+    alert('Gagal menyimpan: ' + message);
   }
 }
