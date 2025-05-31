@@ -1,7 +1,7 @@
 {
-    "id": "/#/",
-    "start_url": "/#/",
-    "scope": "/",
+    "id": "./",
+    "start_url": "./",
+    "scope": "./",
     "name": "StoryApp - Berbagi Cerita",
     "short_name": "StoryApp",
     "description": "Aplikasi Berbagi Cerita yang memungkinkan pengguna berbagi pengalaman dan cerita menarik secara interaktif.",

@@ -21,8 +21,7 @@ export async function registerServiceWorker() {
   }
 
   try {
-    const basePath = window.location.origin.includes('github.io') ? '/storyshare-app/' : '/';
-    await navigator.serviceWorker.register(`${basePath}sw.bundle.js`);
+    await navigator.serviceWorker.register('sw.bundle.js');
   } catch (error) {
     //
   }
