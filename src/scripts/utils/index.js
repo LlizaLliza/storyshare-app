@@ -21,7 +21,7 @@ export async function registerServiceWorker() {
   }
 
   try {
-    await navigator.serviceWorker.register('/sw.bundle.js');
+    await navigator.serviceWorker.register('sw.bundle.js');
   } catch (error) {
     //
   }
